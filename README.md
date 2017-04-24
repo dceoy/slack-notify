@@ -1,5 +1,5 @@
-slack-notify
-============
+slack-post
+==========
 
 A notification command for Slack
 
@@ -10,8 +10,8 @@ This command require curl.
 
 ```sh
 $ cd /path/to/bin   # a path in ${PATH}
-$ curl -SO https://raw.githubusercontent.com/dceoy/slack-notify/master/slack-notify
-$ chmod +x slack-notify
+$ curl -SO https://raw.githubusercontent.com/dceoy/slack-post/master/slack-post
+$ chmod +x slack-post
 ```
 
 Usage
@@ -20,9 +20,9 @@ Usage
 Several options read environment variables if they are not given.
 
 ```sh
-$ slack-notify --help
-Usage:  slack-notify [ -h | --help | -v | --version ]
-        slack-notify [options]
+$ slack-post --help
+Usage:  slack-post [ -h | --help | -v | --version ]
+        slack-post [options]
 
 Description:
   Simple notifier for Slack.
@@ -39,7 +39,7 @@ Options:
   --text              Message text to notify
 
 Example:
-  $ slack-notify \
+  $ slack-post \
       --channel random \
       --user notifier \
       --url https://hooks.slack.com/services/xxxxxxxxx/yyyyyyyyy/zzzzzzzzzzzzzzzzzzzzzzzz \
