@@ -12,9 +12,10 @@
 #   --channel           Slack channel name
 #   --user              Slack user name
 #   --url               Slack webhook URL
+#   --message           Message text to notify
 #   --icon-url          Slack icon URL (optional)
 #   --icon-emoji        Slack icon emoji (optional)
-#   --message           Message text to notify
+#   --proxy             Proxy URL (optional)
 #
 # Example:
 #   $ slack-notify \
@@ -68,6 +69,9 @@ while [[ -n "${1}" ]]; do
     '--message' )
       TEXT="'text': '${2}'" && shift 2
       ;;
+    '--proxy' )
+      PROXY="${2}" && shift 2
+      ;;
     '--url' )
       URL="${2}" && shift 2
       ;;
@@ -82,14 +86,15 @@ done
 [[ -n "${URL}" ]] || abort 'missing web hook url'
 [[ -n "${TEXT}" ]] || abort 'missing message text'
 
-if [[ -n "${ICON_URL}" ]]; then
-  ICON="${ICON_URL}"
-elif [[ -n "${ICON_EMOJI}" ]]; then
-  ICON="${ICON_EMOJI}"
-else
-  ICON=''
-fi
+[[ -n "${ICON_URL}" ]] \
+  && ICON="${ICON_URL}" \
+  || ICON="${ICON_EMOJI}" \
+  || ICON=''
+
+[[ -n "${PROXY}" ]] \
+  && OPT_PROXY="--proxy ${PROXY}" \
+  && OPT_PROXY=''
 
 set -u
 
-curl -sSX POST --data-urlencode "payload={${CHANNEL}${USER}${ICON}${TEXT}}" ${URL}
+curl -sSX POST --data-urlencode "payload={${CHANNEL}${USER}${ICON}${TEXT}}" ${OPT_PROXY} ${URL}

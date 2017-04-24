@@ -18,7 +18,6 @@ Usage
 -----
 
 ```sh
-$ slack-notify --help
 Usage:  slack-notify [ -h | --help | -v | --version ]
         slack-notify [options]
 
@@ -31,9 +30,10 @@ Options:
   --channel           Slack channel name
   --user              Slack user name
   --url               Slack webhook URL
+  --message           Message text to notify
   --icon-url          Slack icon URL (optional)
   --icon-emoji        Slack icon emoji (optional)
-  --message           Message text to notify
+  --proxy             Proxy URL (optional)
 
 Example:
   $ slack-notify \
