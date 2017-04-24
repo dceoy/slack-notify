@@ -1,12 +1,12 @@
 slack-post
 ==========
 
-A notification command for Slack
+Bash-based command for Slack notification
 
 Installation
 ------------
 
-This command require curl.
+This command requires curl.
 
 ```sh
 $ cd /path/to/bin   # a path in ${PATH}
