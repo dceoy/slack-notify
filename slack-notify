@@ -9,20 +9,20 @@
 # Options:
 #   -h, --help          Print usage
 #   -v, --version       Print version information and quit
-#   --channel           Slack channel name
-#   --user              Slack user name
-#   --url               Slack webhook URL
-#   --message           Message text to notify
-#   --icon-url          Slack icon URL (optional)
-#   --icon-emoji        Slack icon emoji (optional)
-#   --proxy             Proxy URL (optional)
+#   --channel           Slack channel name [default: $SLACK_CHANNEL]
+#   --user              Slack user name [default: $SLACK_USER]
+#   --icon-url          Slack icon URL [default: $SLACK_ICON_URL]
+#   --icon-emoji        Slack icon emoji [default: $SLACK_ICON_EMOJI]
+#   --url               Slack webhook URL [default: $SLACK_URL]
+#   --proxy             Proxy URL [default: $HTTPS_PROXY]
+#   --text              Message text to notify
 #
 # Example:
 #   $ slack-notify \
 #       --channel random \
 #       --user notifier \
 #       --url https://hooks.slack.com/services/xxxxxxxxx/yyyyyyyyy/zzzzzzzzzzzzzzzzzzzzzzzz \
-#       --message 'Test notification'
+#       --text 'Test notification'
 
 set -e
 
@@ -32,6 +32,14 @@ set -e
 
 SCRIPT_NAME='slack-notify'
 SCRIPT_VERSION='0.1.0'
+
+CHANNEL="${SLACK_CHANNEL}"
+USER="${SLACK_USER}"
+ICON_URL="${SLACK_ICON_URL}"
+ICON_EMOJI="${SLACK_ICON_EMOJI}"
+URL="${SLACK_URL}"
+PROXY="${HTTPS_PROXY}"
+TEXT=''
 
 function print_version {
   echo "${SCRIPT_NAME}: ${SCRIPT_VERSION}"
@@ -55,25 +63,25 @@ while [[ -n "${1}" ]]; do
       print_usage && exit 0
       ;;
     '--channel' )
-      CHANNEL="'channel': '#${2}', " && shift 2
+      CHANNEL="${2}" && shift 2
       ;;
     '--user' )
-      USER="'username': '${2}', " && shift 2
+      USER="${2}" && shift 2
       ;;
     '--icon-url' )
-      ICON_URL="'icon_url': '${2}', " && shift 2
+      ICON_URL="${2}" && shift 2
       ;;
     '--icon-emoji' )
-      ICON_EMOJI="'icon_emoji': '${2}', " && shift 2
+      ICON_EMOJI="${2}" && shift 2
       ;;
-    '--message' )
-      TEXT="'text': '${2}'" && shift 2
+    '--url' )
+      URL="${2}" && shift 2
       ;;
     '--proxy' )
       PROXY="${2}" && shift 2
       ;;
-    '--url' )
-      URL="${2}" && shift 2
+    '--text' )
+      TEXT="${2}" && shift 2
       ;;
     * )
       abort "invalid argument \`${1}\`"
@@ -81,20 +89,23 @@ while [[ -n "${1}" ]]; do
   esac
 done
 
+set -u
+
 [[ -n "${CHANNEL}" ]] || abort 'missing channel name'
 [[ -n "${USER}" ]] || abort 'missing user name'
 [[ -n "${URL}" ]] || abort 'missing web hook url'
 [[ -n "${TEXT}" ]] || abort 'missing message text'
 
-[[ -n "${ICON_URL}" ]] \
-  && ICON="${ICON_URL}" \
-  || ICON="${ICON_EMOJI}" \
-  || ICON=''
-
 [[ -n "${PROXY}" ]] \
   && OPT_PROXY="--proxy ${PROXY}" \
   && OPT_PROXY=''
 
-set -u
+PAYLOAD=(
+  "'channel': '#${CHANNEL}',"
+  "'username': '${USER}',"
+  "'icon_url': '${ICON_URL}',"
+  "'icon_emoji': '${ICON_EMOJI}',"
+  "'text': '${TEXT}'"
+)
 
-curl -sSX POST --data-urlencode "payload={${CHANNEL}${USER}${ICON}${TEXT}}" ${OPT_PROXY} ${URL}
+curl -sSX POST --data-urlencode "payload={${PAYLOAD[*]}}" ${OPT_PROXY} ${URL}
