@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+#
+# Usage:  slack-notify [ -h | --help | -v | --version ]
+#         slack-notify [options]
+#
+# Description:
+#   Simple notifier for Slack.
+#
+# Options:
+#   -h, --help          Print usage
+#   -v, --version       Print version information and quit
+#   --channel           Slack channel name
+#   --user              Slack user name
+#   --url               Slack webhook URL
+#   --icon-url          Slack icon URL (optional)
+#   --icon-emoji        Slack icon emoji (optional)
+#   --message           Message text to notify
+#
+# Example:
+#   $ slack-notify \
+#       --channel random \
+#       --user notifier \
+#       --url https://hooks.slack.com/services/xxxxxxxxx/yyyyyyyyy/zzzzzzzzzzzzzzzzzzzzzzzz \
+#       --message 'Test notification'
+
+set -e
+
+[[ "${1}" = '--debug' ]] \
+  && set -x \
+  && shift 1
+
+SCRIPT_NAME='slack-notify'
+SCRIPT_VERSION='0.1.0'
+
+function print_version {
+  echo "${SCRIPT_NAME}: ${SCRIPT_VERSION}"
+}
+
+function print_usage {
+  sed -ne '1,2d; /^#/!q; s/^#$/# /; s/^# //p;' ${SCRIPT_NAME}
+}
+
+function abort {
+  echo "${SCRIPT_NAME}: ${*}" >&2
+  exit 1
+}
+
+while [[ -n "${1}" ]]; do
+  case "${1}" in
+    '-v' | '--version' )
+      print_version && exit 0
+      ;;
+    '-h' | '--help' )
+      print_usage && exit 0
+      ;;
+    '--channel' )
+      CHANNEL="'channel': '#${2}', " && shift 2
+      ;;
+    '--user' )
+      USER="'username': '${2}', " && shift 2
+      ;;
+    '--icon-url' )
+      ICON_URL="'icon_url': '${2}', " && shift 2
+      ;;
+    '--icon-emoji' )
+      ICON_EMOJI="'icon_emoji': '${2}', " && shift 2
+      ;;
+    '--message' )
+      TEXT="'text': '${2}'" && shift 2
+      ;;
+    '--url' )
+      URL="${2}" && shift 2
+      ;;
+    * )
+      abort "invalid argument \`${1}\`"
+      ;;
+  esac
+done
+
+[[ -n "${CHANNEL}" ]] || abort 'missing channel name'
+[[ -n "${USER}" ]] || abort 'missing user name'
+[[ -n "${URL}" ]] || abort 'missing web hook url'
+[[ -n "${TEXT}" ]] || abort 'missing message text'
+
+if [[ -n "${ICON_URL}" ]]; then
+  ICON="${ICON_URL}"
+elif [[ -n "${ICON_EMOJI}" ]]; then
+  ICON="${ICON_EMOJI}"
+else
+  ICON=''
+fi
+
+set -u
+
+curl -sSX POST --data-urlencode "payload={${CHANNEL}${USER}${ICON}${TEXT}}" ${URL}

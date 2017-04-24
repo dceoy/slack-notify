@@ -1,2 +1,44 @@
-# slack-notify
-Simple Slack notifier
+slack-notify
+============
+
+A notification command for Slack
+
+Installation
+------------
+
+This command require curl.
+
+```sh
+$ cd /path/to/bin   # a path in ${PATH}
+$ curl -SO https://raw.githubusercontent.com/dceoy/slack-notify/master/slack-notify
+$ chmod +x slack-notify
+```
+
+Usage
+-----
+
+```sh
+$ slack-notify --help
+Usage:  slack-notify [ -h | --help | -v | --version ]
+        slack-notify [options]
+
+Description:
+  Simple notifier for Slack.
+
+Options:
+  -h, --help          Print usage
+  -v, --version       Print version information and quit
+  --channel           Slack channel name
+  --user              Slack user name
+  --url               Slack webhook URL
+  --icon-url          Slack icon URL (optional)
+  --icon-emoji        Slack icon emoji (optional)
+  --message           Message text to notify
+
+Example:
+  $ slack-notify \
+      --channel random \
+      --user notifier \
+      --url https://hooks.slack.com/services/xxxxxxxxx/yyyyyyyyy/zzzzzzzzzzzzzzzzzzzzzzzz \
+      --message 'Test notification'
+```
