@@ -1,21 +1,21 @@
 #!/usr/bin/env bash
 #
 # Usage:  slack-post [ -h | --help | -v | --version ]
-#         slack-post [options]
+#         slack-post [ options ]
 #
 # Description:
 #   Simple notifier for Slack.
 #
 # Options:
 #   -h, --help          Print usage
-#   -v, --version       Print version information and quit
-#   --channel           Slack channel name [default: $SLACK_CHANNEL]
+#   -v, --version       Print version information
+#   -t, --text          Message texts to post
+#   --url               Slack webhook URL [default: $SLACK_URL]
 #   --user              Slack user name [default: $SLACK_USER]
+#   --channel           Slack channel name [default: $SLACK_CHANNEL]
 #   --icon-url          Slack icon URL [default: $SLACK_ICON_URL]
 #   --icon-emoji        Slack icon emoji [default: $SLACK_ICON_EMOJI]
-#   --url               Slack webhook URL [default: $SLACK_URL]
 #   --proxy             Proxy URL [default: $HTTPS_PROXY]
-#   --text              Message text to notify
 #
 # Example:
 #   $ slack-post \
@@ -26,14 +26,11 @@
 
 set -e
 
-[[ "${1}" = '--debug' ]] \
-  && set -x \
-  && shift 1
+[[ "${1}" = '--debug' ]] && set -x && shift 1
 
-SCRIPT_NAME='slack-post'
-SCRIPT_VERSION='0.1.0'
-SCRIPT_PATH="$(dirname ${0})/$(basename ${0})"
-
+COMMAND_NAME='slack-post'
+COMMAND_VERSION='v1.0.0'
+COMMAND_PATH="$(dirname ${0})/$(basename ${0})"
 CHANNEL="${SLACK_CHANNEL}"
 USER="${SLACK_USER}"
 ICON_URL="${SLACK_ICON_URL}"
@@ -43,15 +40,15 @@ PROXY="${HTTPS_PROXY}"
 TEXT=''
 
 function print_version {
-  echo "${SCRIPT_NAME}: ${SCRIPT_VERSION}"
+  echo "${COMMAND_NAME}: ${COMMAND_VERSION}"
 }
 
 function print_usage {
-  sed -ne '1,2d; /^#/!q; s/^#$/# /; s/^# //p;' ${SCRIPT_PATH}
+  sed -ne '1,2d; /^#/!q; s/^#$/# /; s/^# //p;' ${COMMAND_PATH}
 }
 
 function abort {
-  echo "${SCRIPT_NAME}: ${*}" >&2
+  echo "${COMMAND_NAME}: ${*}" >&2
   exit 1
 }
 
@@ -63,11 +60,17 @@ while [[ -n "${1}" ]]; do
     '-h' | '--help' )
       print_usage && exit 0
       ;;
-    '--channel' )
-      CHANNEL="${2}" && shift 2
+    '-t' | '--text' )
+      TEXT="${2}" && shift 2
+      ;;
+    '--url' )
+      URL="${2}" && shift 2
       ;;
     '--user' )
       USER="${2}" && shift 2
+      ;;
+    '--channel' )
+      CHANNEL="${2}" && shift 2
       ;;
     '--icon-url' )
       ICON_URL="${2}" && shift 2
@@ -75,14 +78,8 @@ while [[ -n "${1}" ]]; do
     '--icon-emoji' )
       ICON_EMOJI="${2}" && shift 2
       ;;
-    '--url' )
-      URL="${2}" && shift 2
-      ;;
     '--proxy' )
       PROXY="${2}" && shift 2
-      ;;
-    '--text' )
-      TEXT="${2}" && shift 2
       ;;
     * )
       abort "invalid argument \`${1}\`"
@@ -92,14 +89,13 @@ done
 
 set -u
 
-[[ -n "${CHANNEL}" ]] || abort 'missing channel name'
-[[ -n "${USER}" ]] || abort 'missing user name'
+[[ -n "${TEXT}" ]] || abort 'missing an argumet for message text'
 [[ -n "${URL}" ]] || abort 'missing web hook url'
-[[ -n "${TEXT}" ]] || abort 'missing message text'
-
+[[ -n "${USER}" ]] || abort 'missing user name'
+[[ -n "${CHANNEL}" ]] || abort 'missing channel name'
 [[ -n "${PROXY}" ]] \
   && OPT_PROXY="--proxy ${PROXY}" \
-  && OPT_PROXY=''
+  || OPT_PROXY=''
 
 PAYLOAD=(
   "'channel': '#${CHANNEL}',"

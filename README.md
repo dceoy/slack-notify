@@ -1,7 +1,7 @@
 slack-post
 ==========
 
-Bash-based command for Slack notification
+Bash-based command to post text messages to Slack
 
 Installation
 ------------
