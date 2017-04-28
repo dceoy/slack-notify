@@ -32,6 +32,7 @@ set -e
 
 SCRIPT_NAME='slack-post'
 SCRIPT_VERSION='0.1.0'
+SCRIPT_PATH="$(dirname ${0})/$(basename ${0})"
 
 CHANNEL="${SLACK_CHANNEL}"
 USER="${SLACK_USER}"
@@ -46,7 +47,7 @@ function print_version {
 }
 
 function print_usage {
-  sed -ne '1,2d; /^#/!q; s/^#$/# /; s/^# //p;' ${SCRIPT_NAME}
+  sed -ne '1,2d; /^#/!q; s/^#$/# /; s/^# //p;' ${SCRIPT_PATH}
 }
 
 function abort {
