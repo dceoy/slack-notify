@@ -98,11 +98,14 @@ set -u
   || OPT_PROXY=''
 
 PAYLOAD=(
+  "{"
   "'channel': '#${CHANNEL}',"
   "'username': '${USER}',"
   "'icon_url': '${ICON_URL}',"
   "'icon_emoji': '${ICON_EMOJI}',"
+  "'link_names': 1,"
   "'text': '${TEXT}'"
+  "}"
 )
 
-curl -sSX POST --data-urlencode "payload={${PAYLOAD[*]}}" ${OPT_PROXY} ${URL}
+curl -sSX POST --data-urlencode "payload=${PAYLOAD[*]}" ${OPT_PROXY} ${URL}
